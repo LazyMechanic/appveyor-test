@@ -49,8 +49,9 @@ before_build:
       cd build
 
       $env:buildtype = if ($env:generator -eq "MinGW Makefiles") {"-DCMAKE_BUILD_TYPE=$env:configuration"} else {"-DCMAKE_CONFIGURATION_TYPES=Debug;Release"}
+      $env:noshell = if ($env:generator -eq "MinGW Makefiles") {"-DCMAKE_SH=CMAKE_SH-NOTFOUND"} else { "" }
 
-      & cmake .. -G "$env:generator" $env:buildtype -Dgtest_force_shared_crt=ON
+      & cmake .. -G "$env:generator" $env:buildtype -Dgtest_force_shared_crt=ON $env:noshell
       & cmake --build . --config $env:configuration
       & cmake --install . --prefix ../install
 
@@ -61,7 +62,7 @@ build_script:
       md build
       cd build
 
-      & cmake .. -G "$env:generator" $env:buildtype -DGTest_DIR="$env:gtest/install/lib/cmake/GTest" -Dappveyor-test_BUILD_TESTS=ON
+      & cmake .. -G "$env:generator" $env:buildtype -DGTest_DIR="$env:gtest/install/lib/cmake/GTest" -Dappveyor-test_BUILD_TESTS=ON $env:noshell
       & cmake --build . --config $env:configuration
 
 test_script:
