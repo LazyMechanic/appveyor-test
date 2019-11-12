@@ -1,21 +1,16 @@
 version: '{build}'
 
+os: Visual Studio 2015
+
 environment:
   matrix:
     - compiler: msvc-16-seh
-      generator: "Visual Studio 16 2019 Win64"
+      generator: "Visual Studio 16 2019"
       build_system: cmake
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
 
-    - compiler: msvc-15-seh
-      generator: "Visual Studio 15 2017 Win64"
-      build_system: cmake
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-
-    - compiler: msvc-14-seh
-      generator: "Visual Studio 14 2015 Win64"
-      build_system: cmake
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+matrix:
+  fast_finish: true
 
 configuration: Release
 
@@ -24,27 +19,42 @@ build:
 
 install:
   - ps: |
-      Write-Output "Compiler: $env:compiler"
-      Write-Output "Generator: $env:generator"
-      Write-Output "Env:Configuation: $env:configuration"
       Write-Output "Env: $env"
+      Write-Output "Env:Compiler: $env:compiler"
+      Write-Output "Env:Generator: $env:generator"
+      Write-Output "Env:Configuation: $env:configuration"
 
       # Download googletest
-      appveyor DownloadFile https://github.com/google/googletest/archive/release-1.10.0.tar.gz -FileName googletest.tar.gz
-      tar -xzf googletest.tar.gz
-      ls
-      pwd
-      $GTEST_DIR = Resolve-Path "./googletest"
+      appveyor DownloadFile https://github.com/google/googletest/archive/release-1.10.0.tar.gz -FileName release-1.10.0.tar.gz
+      tar -xzf release-1.10.0.tar.gz
 
-
+      $env:gtest = Resolve-Path "./googletest-release-1.10.0"
+      Write-Output "Env:gtest: $env:gtest"
 
 before_build:
   - ps: |
-      $env:root=$env:APPVEYOR_BUILD_FOLDER
-      Write-Output "env:root: $env:root"
+      # Build googletest
+      cd $env:gtest
+      md build
+      cd build
+
+      $env:buildtype = if ($env:generator -eq "MinGW Makefiles") {"-DCMAKE_BUILD_TYPE=$env:configuration"} else {"-DCMAKE_CONFIGURATION_TYPES=Debug;Release"}
+
+      & cmake .. -G "$env:generator" $env:buildtype -Dgtest_force_shared_crt=ON
+      & cmake --build . --config $env:configuration
+      & cmake --install . --prefix ../install
+
+      cd ../..
+      Get-Location
 
 build_script:
   - ps: |
+      md build
+      cd build
+
+      & cmake .. -G "$env:generator" $env:buildtype -DGTest_DIR="$env:gtest/install/lib/cmake/GTest"
+      & cmake --build . --config $env:configuration
 
 test_script:
   - ps: |
+      & ctest --verbose
