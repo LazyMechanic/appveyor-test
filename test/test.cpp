@@ -4,7 +4,7 @@
 #pragma warning(disable : 26812)
 
 #include <gtest/gtest.h>
-#include "../src/travis-test/lib.h"
+#include "../src/appveyor-test/lib.h"
 
 TEST(Test, Test)
 {
