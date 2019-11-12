@@ -52,7 +52,7 @@ build_script:
       md build
       cd build
 
-      & cmake .. -G "$env:generator" $env:buildtype -DGTest_DIR="$env:gtest/install/lib/cmake/GTest"
+      & cmake .. -G "$env:generator" $env:buildtype -DGTest_DIR="$env:gtest/install/lib/cmake/GTest" -Dappveyor-test_BUILD_TESTS=ON
       & cmake --build . --config $env:configuration
 
 test_script:
