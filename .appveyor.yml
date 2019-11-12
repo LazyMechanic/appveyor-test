@@ -2,6 +2,16 @@ version: '{build}'
 
 environment:
   matrix:
+    - compiler: gcc-8.1.0-posix
+      generator: "MinGW Makefiles"
+      build_system: cmake
+      cxx_path: 'C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin'
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    - compiler: gcc-7.3.0-posix
+      generator: "MinGW Makefiles"
+      build_system: cmake
+      cxx_path: 'C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin'
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - compiler: msvc-16-seh
       generator: "Visual Studio 16 2019"
       build_system: cmake
@@ -14,13 +24,6 @@ environment:
       generator: "Visual Studio 14 2015"
       build_system: cmake
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    - compiler: MinGW-w64
-      generator: "MinGW Makefiles"
-      build_system: cmake
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-
-matrix:
-  fast_finish: true
 
 configuration: Release
 
@@ -33,6 +36,13 @@ install:
       Write-Output "Env:Compiler: $env:compiler"
       Write-Output "Env:Generator: $env:generator"
       Write-Output "Env:Configuation: $env:configuration"
+
+      # Add C++ and C MinGW compilers in path
+      if ($env:generator -eq "MinGW Makefiles") {
+          if ($env:cxx_path -ne "") {
+              $env:path += ";$env:cxx_path"
+          }
+      }
 
       # Download googletest
       appveyor DownloadFile https://github.com/google/googletest/archive/release-1.10.0.tar.gz -FileName release-1.10.0.tar.gz
