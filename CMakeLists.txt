@@ -22,3 +22,8 @@ project(${_PROJECT_NAME} LANGUAGES ${_PROJECT_LANGUAGE} VERSION ${_PROJECT_VERSI
 foreach(SUBPROJ ${SUBPROJECT_LIST})
     add_subdirectory(${SUBPROJ})
 endforeach()
+
+if(${appveyor-test_BUILD_TESTS})
+    enable_testing()
+    add_subdirectory(test)
+endif()
