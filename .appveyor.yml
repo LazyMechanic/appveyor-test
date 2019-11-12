@@ -14,6 +14,10 @@ environment:
       generator: "Visual Studio 14 2015"
       build_system: cmake
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    - compiler: MinGW-w64
+      generator: "MinGW Makefiles"
+      build_system: cmake
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
 matrix:
   fast_finish: true
