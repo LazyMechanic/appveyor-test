@@ -57,4 +57,4 @@ build_script:
 
 test_script:
   - ps: |
-      & ctest --verbose
+      & ctest -C "$env:configuration" --verbose
